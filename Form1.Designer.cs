@@ -105,6 +105,7 @@
             lvwLeftDir.TabIndex = 0;
             lvwLeftDir.UseCompatibleStateImageBehavior = false;
             lvwLeftDir.View = View.Details;
+            lvwLeftDir.DrawItem += lvwLeftDir_DrawItem;
             // 
             // columnHeader1
             // 
@@ -133,7 +134,7 @@
             // 
             // btnLeftDir
             // 
-            btnLeftDir.Anchor = AnchorStyles.Top;
+            btnLeftDir.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnLeftDir.Location = new Point(444, 6);
             btnLeftDir.Name = "btnLeftDir";
             btnLeftDir.Size = new Size(75, 24);
@@ -201,6 +202,7 @@
             lvwrightDir.TabIndex = 0;
             lvwrightDir.UseCompatibleStateImageBehavior = false;
             lvwrightDir.View = View.Details;
+            lvwrightDir.DrawItem += lvwrightDir_DrawItem;
             // 
             // columnHeader4
             // 
