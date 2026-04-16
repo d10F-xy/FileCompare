@@ -213,6 +213,87 @@ namespace FileCompare
             e.DrawDefault = true;
         }
 
+        private void btnCopyFromLeft_Click(object sender, EventArgs e)
+        {
+            var sel = lvwLeftDir.SelectedItems.Cast<ListViewItem>().FirstOrDefault();
+            if (sel == null || sel.Tag is not FileInfo lfi)
+            {
+                MessageBox.Show("왼쪽에서 복사할 파일을 선택하세요.", "정보", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(txtRightDir.Text) || !Directory.Exists(txtRightDir.Text))
+            {
+                MessageBox.Show("오른쪽 대상 폴더를 먼저 선택하세요.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var destPath = Path.Combine(txtRightDir.Text, lfi.Name);
+            // if counterpart exists, compare LastWriteTime
+            if (File.Exists(destPath))
+            {
+                var rfi = new FileInfo(destPath);
+                var msg = $"왼쪽: {lfi.LastWriteTime:G}\n오른쪽: {rfi.LastWriteTime:G}\n\n덮어쓰시겠습니까?";
+                var dr = MessageBox.Show(msg, "파일 덮어쓰기 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dr != DialogResult.Yes) return;
+            }
+
+            try
+            {
+                File.Copy(lfi.FullName, destPath, true);
+                MessageBox.Show("복사 완료.", "완료", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // refresh both lists
+                if (!string.IsNullOrWhiteSpace(txtLeftDir.Text) && Directory.Exists(txtLeftDir.Text))
+                    PopulateListView(lvwLeftDir, txtLeftDir.Text);
+                if (!string.IsNullOrWhiteSpace(txtRightDir.Text) && Directory.Exists(txtRightDir.Text))
+                    PopulateListView(lvwrightDir, txtRightDir.Text);
+                CompareAndColor();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("복사 실패: " + ex.Message, "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnCopyFromRight_Click(object sender, EventArgs e)
+        {
+            var sel = lvwrightDir.SelectedItems.Cast<ListViewItem>().FirstOrDefault();
+            if (sel == null || sel.Tag is not FileInfo rfi)
+            {
+                MessageBox.Show("오른쪽에서 복사할 파일을 선택하세요.", "정보", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(txtLeftDir.Text) || !Directory.Exists(txtLeftDir.Text))
+            {
+                MessageBox.Show("왼쪽 대상 폴더를 먼저 선택하세요.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var destPath = Path.Combine(txtLeftDir.Text, rfi.Name);
+            if (File.Exists(destPath))
+            {
+                var lfi = new FileInfo(destPath);
+                var msg = $"오른쪽: {rfi.LastWriteTime:G}\n왼쪽: {lfi.LastWriteTime:G}\n\n덮어쓰시겠습니까?";
+                var dr = MessageBox.Show(msg, "파일 덮어쓰기 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dr != DialogResult.Yes) return;
+            }
+
+            try
+            {
+                File.Copy(rfi.FullName, destPath, true);
+                MessageBox.Show("복사 완료.", "완료", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // refresh both lists
+                if (!string.IsNullOrWhiteSpace(txtLeftDir.Text) && Directory.Exists(txtLeftDir.Text))
+                    PopulateListView(lvwLeftDir, txtLeftDir.Text);
+                if (!string.IsNullOrWhiteSpace(txtRightDir.Text) && Directory.Exists(txtRightDir.Text))
+                    PopulateListView(lvwrightDir, txtRightDir.Text);
+                CompareAndColor();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("복사 실패: " + ex.Message, "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
     }
 
 }
